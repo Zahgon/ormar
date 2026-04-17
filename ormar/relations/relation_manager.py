@@ -147,11 +147,7 @@ class RelationsManager:
         :return: type of the relation defined on field
         :rtype: RelationType
         """
-        if field.is_multi:
-            return RelationType.MULTIPLE
-        if field.is_through:
-            return RelationType.THROUGH
-        return RelationType.PRIMARY if not field.virtual else RelationType.REVERSE
+        pass
 
     def _add_relation(self, field: "BaseField") -> None:
         """
@@ -161,10 +157,4 @@ class RelationsManager:
         :param field: field with relation declaration
         :type field: BaseField
         """
-        self._relations[field.name] = Relation(
-            manager=self,
-            type_=self._get_relation_type(field),
-            field_name=field.name,
-            to=field.to,
-            through=getattr(field, "through", None),
-        )
+        pass

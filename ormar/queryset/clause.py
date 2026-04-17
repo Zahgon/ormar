@@ -69,27 +69,7 @@ class FilterGroup:
         :return: list of filter conditions and select_related list
         :rtype: tuple[list[FilterAction], list[str]]
         """
-        select_related = select_related if select_related is not None else []
-        filter_clauses = filter_clauses if filter_clauses is not None else []
-        qryclause = QueryClause(
-            model_cls=model_cls,
-            select_related=select_related,
-            filter_clauses=filter_clauses,
-        )
-        own_filter_clauses, select_related = qryclause.prepare_filter(
-            _own_only=True, **self._kwargs_dict
-        )
-        self.actions = own_filter_clauses
-        filter_clauses = filter_clauses + own_filter_clauses
-        self._resolved = True
-        if self._nested_groups:
-            for group in self._nested_groups:
-                filter_clauses, select_related = group.resolve(
-                    model_cls=model_cls,
-                    select_related=select_related,
-                    filter_clauses=filter_clauses,
-                )
-        return filter_clauses, select_related
+        pass
 
     def _iter(self) -> Generator:
         """
@@ -171,8 +151,7 @@ class Prefix:
 
     @property
     def alias_key(self) -> str:
-        source_model_name = self.source_model.get_name()
-        return f"{source_model_name}_{self.relation_str}"
+        pass
 
 
 class QueryClause:

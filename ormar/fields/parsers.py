@@ -14,27 +14,19 @@ except ImportError:  # pragma: no cover
 
 
 def parse_bool(value: str) -> bool:
-    return value == "true"
+    pass
 
 
 def encode_bool(value: bool) -> str:
-    return "true" if value else "false"
+    pass
 
 
 def encode_decimal(value: decimal.Decimal, precision: Optional[int] = None) -> float:
-    return (
-        round(float(value), precision) if isinstance(value, decimal.Decimal) else value
-    )
+    pass
 
 
 def encode_bytes(value: Union[str, bytes], represent_as_string: bool = False) -> str:
-    if represent_as_string:
-        value = (
-            value if isinstance(value, str) else base64.b64encode(value).decode("utf-8")
-        )
-    else:
-        value = value if isinstance(value, str) else value.decode("utf-8")
-    return value
+    pass
 
 
 def decode_bytes(value: str, represent_as_string: bool = False) -> bytes:

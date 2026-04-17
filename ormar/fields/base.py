@@ -131,10 +131,7 @@ class BaseField(FieldInfo):  # type: ignore[misc]
         :return: instance of base pydantic.FieldInfo
         :rtype: pydantic.FieldInfo
         """
-        base = self.default_value()
-        if base is None:
-            base = dict(default=None) if self.nullable else dict(default=_Unset)
-        return base
+        pass
 
     def default_value(self, use_server: bool = False) -> Optional[dict]:
         """
@@ -154,18 +151,7 @@ class BaseField(FieldInfo):  # type: ignore[misc]
         which is returning a FieldInfo instance
         :rtype: Optional[pydantic.FieldInfo]
         """
-        if self.is_auto_primary_key():
-            return dict(default=None)
-        if self.has_default(use_server=use_server):
-            default = (
-                self.ormar_default
-                if self.ormar_default is not None
-                else self.server_default
-            )
-            if callable(default):
-                return dict(default_factory=default)
-            return dict(default=default)
-        return None
+        pass
 
     @overload
     def get_default(
@@ -244,9 +230,7 @@ class BaseField(FieldInfo):  # type: ignore[misc]
         :return: result of the check for primary key and autoincrement
         :rtype: bool
         """
-        if self.primary_key:
-            return self.autoincrement
-        return False
+        pass
 
     def construct_constraints(self) -> list:
         """
@@ -348,7 +332,7 @@ class BaseField(FieldInfo):  # type: ignore[misc]
         :return: returns untouched value for normal fields, expands only for relations
         :rtype: Any
         """
-        return value
+        pass
 
     def set_self_reference_flag(self) -> None:
         """

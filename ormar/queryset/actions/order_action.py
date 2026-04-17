@@ -32,15 +32,11 @@ class OrderAction(QueryAction):
 
     @property
     def field_alias(self) -> str:
-        return self.target_model.get_column_alias(self.field_name)
+        pass
 
     @property
     def is_postgres_bool(self) -> bool:
-        dialect = self.target_model.ormar_config.database.dialect.name
-        field_type = self.target_model.ormar_config.model_fields[
-            self.field_name
-        ].__type__
-        return dialect == "postgresql" and field_type is bool
+        pass
 
     def get_field_name_text(self) -> str:
         """
@@ -93,12 +89,7 @@ class OrderAction(QueryAction):
         return text(f"{table_name}.{field_name} {self.direction}")
 
     def _split_value_into_parts(self, order_str: str) -> None:
-        if order_str.startswith("-"):
-            self.direction = "desc"
-            order_str = order_str[1:]
-        parts = order_str.split("__")
-        self.field_name = parts[-1]
-        self.related_parts = parts[:-1]
+        pass
 
     def check_if_filter_apply(self, target_model: type["Model"], alias: str) -> bool:
         """

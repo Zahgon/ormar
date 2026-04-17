@@ -167,63 +167,7 @@ class Model(ModelRow):
         :return: number of updated/saved models
         :rtype: int
         """
-        relation_map = (
-            relation_map
-            if relation_map is not None
-            else translate_list_to_dict(self._iterate_related_models())
-        )
-        if exclude and isinstance(exclude, set):
-            exclude = translate_list_to_dict(exclude)
-        relation_map = subtract_dict(relation_map, exclude or {})
-
-        if relation_map:
-            fields_to_visit = {
-                field
-                for field in self.extract_related_fields()
-                if field.name in relation_map
-            }
-            pre_save = {
-                field
-                for field in fields_to_visit
-                if not field.virtual and not field.is_multi
-            }
-
-            update_count = await self._update_relation_list(
-                fields_list=pre_save,
-                follow=follow,
-                save_all=save_all,
-                relation_map=relation_map,
-                update_count=update_count,
-            )
-
-            update_count = await self._upsert_model(
-                instance=self,
-                save_all=save_all,
-                previous_model=previous_model,
-                relation_field=relation_field,
-                update_count=update_count,
-            )
-
-            post_save = fields_to_visit - pre_save
-
-            update_count = await self._update_relation_list(
-                fields_list=post_save,
-                follow=follow,
-                save_all=save_all,
-                relation_map=relation_map,
-                update_count=update_count,
-            )
-
-        else:
-            update_count = await self._upsert_model(
-                instance=self,
-                save_all=save_all,
-                previous_model=previous_model,
-                relation_field=relation_field,
-                update_count=update_count,
-            )
-
-        return update_count
+        pass
 
     async def update(self: T, _columns: Optional[list[str]] = None, **kwargs: Any) -> T:
         """
@@ -346,15 +290,4 @@ class Model(ModelRow):
         :return: reloaded Model
         :rtype: Model
         """
-        relations = list(self.extract_related_names())
-        if follow:
-            relations = self._iterate_related_models()
-        queryset = self.__class__.objects
-        if exclude:
-            queryset = queryset.exclude_fields(exclude)
-        if order_by:
-            queryset = queryset.order_by(order_by)
-        instance = await queryset.select_related(relations).get(pk=self.pk)
-        self._orm.clear()
-        self.update_from_dict(instance.model_dump())
-        return self
+        pass

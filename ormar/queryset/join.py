@@ -55,25 +55,19 @@ class SqlJoin:
 
     @property
     def next_model(self) -> type["Model"]:
-        if not self._next_model:  # pragma: nocover
-            raise RelationshipInstanceError(
-                "Cannot link to related table if relation.to model is not set."
-            )
-        return self._next_model
+        pass
 
     @next_model.setter
     def next_model(self, value: type["Model"]) -> None:
-        self._next_model = value
+        pass
 
     @property
     def next_alias(self) -> str:
-        if not self._next_alias:  # pragma: nocover
-            raise RelationshipInstanceError("Alias for given relation not found.")
-        return self._next_alias
+        pass
 
     @next_alias.setter
     def next_alias(self, value: str) -> None:
-        self._next_alias = value
+        pass
 
     @property
     def alias_manager(self) -> AliasManager:
@@ -92,7 +86,7 @@ class SqlJoin:
         :return: name of the target table
         :rtype: str
         """
-        return self.next_model.ormar_config.table
+        pass
 
     def _on_clause(
         self,

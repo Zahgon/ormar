@@ -148,30 +148,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: constructed model instance
         :rtype: NewBaseModel
         """
-        instance = cls.__new__(cls)
-        instance._verify_model_can_be_initialized()
-        instance._initialize_internal_attributes()
-        object.__setattr__(instance, "__pk_only__", _pk_only)
-
-        new_kwargs, through_tmp_dict = instance._process_kwargs(kwargs)
-
-        if _excluded:
-            for field_to_nullify in _excluded:
-                new_kwargs[field_to_nullify] = None
-
-        if not _pk_only:
-            new_kwargs = instance.serialize_nested_models_json_fields(new_kwargs)
-            instance.__pydantic_validator__.validate_python(
-                new_kwargs,
-                self_instance=instance,  # type: ignore
-            )
-        else:
-            fields_set = {instance.ormar_config.pkname}
-            object.__setattr__(instance, "__dict__", new_kwargs)
-            object.__setattr__(instance, "__pydantic_fields_set__", fields_set)
-
-        instance._register_related_models(new_kwargs, through_tmp_dict)
-        return instance
+        pass
 
     def _register_related_models(
         self, new_kwargs: dict[str, Any], through_tmp_dict: dict[str, Any]
@@ -184,12 +161,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :param through_tmp_dict: through model fields extracted during processing
         :type through_tmp_dict: dict[str, Any]
         """
-        new_kwargs.update(through_tmp_dict)
-        model_fields = object.__getattribute__(self, "ormar_config").model_fields
-        for related in self.extract_related_names().union(self.extract_through_names()):
-            model_fields[related].expand_relationship(
-                new_kwargs.get(related), self, to_register=True
-            )
+        pass
 
     @classmethod
     def _construct_with_excluded(
@@ -308,7 +280,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :param value: value to set
         :type value: Any
         """
-        super().__setattr__(name, value)
+        pass
 
     def _verify_model_can_be_initialized(self) -> None:
         """
@@ -317,14 +289,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: None
         :rtype: None
         """
-        if self.ormar_config.abstract:
-            raise ModelError(f"You cannot initialize abstract model {self.get_name()}")
-        if self.ormar_config.requires_ref_update:
-            raise ModelError(
-                f"Model {self.get_name()} has not updated "
-                f"ForwardRefs. \nBefore using the model you "
-                f"need to call update_forward_refs()."
-            )
+        pass
 
     def _process_kwargs(self, kwargs: dict) -> tuple[dict, dict]:  # noqa: CCR001
         """
@@ -341,48 +306,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: modified kwargs
         :rtype: tuple[dict, dict]
         """
-        property_fields = self.ormar_config.property_fields
-        model_fields = self.ormar_config.model_fields
-        pydantic_fields = set(self.__class__.model_fields.keys())
-
-        # remove property fields
-        for prop_filed in property_fields:
-            kwargs.pop(prop_filed, None)
-
-        if "pk" in kwargs:
-            kwargs[self.ormar_config.pkname] = kwargs.pop("pk")
-
-        # extract through fields
-        through_tmp_dict = dict()
-        for field_name in self.extract_through_names():
-            through_tmp_dict[field_name] = kwargs.pop(field_name, None)
-
-        kwargs = self._remove_extra_parameters_if_they_should_be_ignored(
-            kwargs=kwargs, model_fields=model_fields, pydantic_fields=pydantic_fields
-        )
-        try:
-            new_kwargs: dict[str, Any] = {
-                k: self._convert_to_bytes(
-                    k,
-                    self._convert_json(
-                        k,
-                        (
-                            model_fields[k].expand_relationship(
-                                v, self, to_register=False
-                            )
-                            if k in model_fields
-                            else (v if k in pydantic_fields else model_fields[k])
-                        ),
-                    ),
-                )
-                for k, v in kwargs.items()
-            }
-        except KeyError as e:
-            raise ModelError(
-                f"Unknown field '{e.args[0]}' for model {self.get_name(lower=False)}"
-            )
-
-        return new_kwargs, through_tmp_dict
+        pass
 
     def _remove_extra_parameters_if_they_should_be_ignored(
         self, kwargs: dict, model_fields: dict, pydantic_fields: set
@@ -399,29 +323,14 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: dict without extra fields
         :rtype: dict
         """
-        if self.ormar_config.extra == Extra.ignore:
-            kwargs = {
-                k: v
-                for k, v in kwargs.items()
-                if k in model_fields or k in pydantic_fields
-            }
-        return kwargs
+        pass
 
     def _initialize_internal_attributes(self) -> None:
         """
         Initializes internal attributes during __init__()
         :rtype: None
         """
-        # object.__setattr__(self, "_orm_id", uuid.uuid4().hex)
-        object.__setattr__(self, "_orm_saved", False)
-        object.__setattr__(self, "_pk_column", None)
-        object.__setattr__(
-            self,
-            "_orm",
-            RelationsManager(
-                related_fields=self.extract_related_fields(), owner=cast("Model", self)
-            ),
-        )
+        pass
 
     def __eq__(self, other: object) -> bool:
         """
@@ -496,22 +405,17 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: primary key sqlalchemy column
         :rtype: sqlalchemy.Column
         """
-        if object.__getattribute__(self, "_pk_column") is not None:
-            return object.__getattribute__(self, "_pk_column")
-        pk_columns = self.ormar_config.table.primary_key.columns.values()
-        pk_col = pk_columns[0]
-        object.__setattr__(self, "_pk_column", pk_col)
-        return pk_col
+        pass
 
     @property
     def saved(self) -> bool:
         """Saved status of the model. Changed by setattr and loading from db"""
-        return self._orm_saved
+        pass
 
     @property
     def signals(self) -> "SignalEmitter":
         """Exposes signals from model OrmarConfig"""
-        return self.ormar_config.signals
+        pass
 
     @classmethod
     def pk_type(cls) -> Any:
@@ -522,7 +426,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
     def db_backend_name(cls) -> str:
         """Shortcut to database dialect,
         cause some dialect require different treatment"""
-        return cls.ormar_config.database.dialect.name
+        pass
 
     def remove(self, parent: "Model", name: str) -> None:
         """Removes child from relation with given name in RelationshipManager"""
@@ -840,22 +744,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         exclude_list: bool = False,
         relation_map: Optional[builtins.dict] = None,
     ) -> "DictStrAny":  # noqa: A003 # pragma: no cover
-        warnings.warn(
-            "The `dict` method is deprecated; use `model_dump` instead.",
-            DeprecationWarning,
-        )
-        return self.model_dump(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            exclude_primary_keys=exclude_primary_keys,
-            exclude_through_models=exclude_through_models,
-            exclude_list=exclude_list,
-            relation_map=relation_map,
-        )
+        pass
 
     def model_dump(  # type: ignore # noqa A003
         self,
@@ -980,21 +869,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         exclude_through_models: bool = False,
         **dumps_kwargs: Any,
     ) -> str:  # pragma: no cover
-        warnings.warn(
-            "The `json` method is deprecated; use `model_dump_json` instead.",
-            DeprecationWarning,
-        )
-        return self.model_dump_json(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            exclude_primary_keys=exclude_primary_keys,
-            exclude_through_models=exclude_through_models,
-            **dumps_kwargs,
-        )
+        pass
 
     def model_dump_json(  # type: ignore # noqa A003
         self,
@@ -1016,17 +891,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         `encoder` is an optional function to supply as `default` to json.dumps(),
         other arguments as per `json.dumps()`.
         """
-        data = self.model_dump(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-            exclude_primary_keys=exclude_primary_keys,
-            exclude_through_models=exclude_through_models,
-        )
-        return self.__pydantic_serializer__.to_json(data, warnings=False).decode()
+        pass
 
     @classmethod
     @typing_extensions.deprecated(
@@ -1036,41 +901,13 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
     def construct(
         cls: type["T"], _fields_set: Union[set[str], None] = None, **values: Any
     ) -> "T":  # pragma: no cover
-        warnings.warn(
-            "The `construct` method is deprecated; use `model_construct` instead.",
-            DeprecationWarning,
-        )
-        return cls.model_construct(_fields_set=_fields_set, **values)
+        pass
 
     @classmethod
     def model_construct(
         cls: type["T"], _fields_set: Optional["SetStr"] = None, **values: Any
     ) -> "T":
-        own_values = {
-            k: v for k, v in values.items() if k not in cls.extract_related_names()
-        }
-        model = cls.__new__(cls)
-        fields_values: dict[str, Any] = {}
-        for name, field in cls.model_fields.items():
-            if name in own_values:
-                fields_values[name] = own_values[name]
-            elif not field.is_required():
-                fields_values[name] = field.get_default()
-        fields_values.update(own_values)
-
-        if _fields_set is None:
-            _fields_set = set(values.keys())
-
-        extra_allowed = cls.model_config.get("extra") == "allow"
-        if not extra_allowed:
-            fields_values.update(values)
-        object.__setattr__(model, "__dict__", fields_values)
-        model._initialize_internal_attributes()
-        cls._construct_relations(model=model, values=values)
-        object.__setattr__(model, "__pydantic_fields_set__", _fields_set)
-        return cls._pydantic_model_construct_finalizer(
-            model=model, extra_allowed=extra_allowed, values=values
-        )
+        pass
 
     @classmethod
     def _pydantic_model_construct_finalizer(
@@ -1079,48 +916,11 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         """
         Recreate pydantic model_construct logic here as we do not call super method.
         """
-        _extra: Union[builtins.dict[str, Any], None] = None
-        if extra_allowed:  # pragma: no cover
-            _extra = {}
-            for k, v in values.items():
-                _extra[k] = v
-
-        if not cls.__pydantic_root_model__:
-            object.__setattr__(model, "__pydantic_extra__", _extra)
-
-        if cls.__pydantic_post_init__:  # pragma: no cover
-            model.model_post_init(None)
-        elif not cls.__pydantic_root_model__:
-            # Note: if there are any private attributes,
-            # cls.__pydantic_post_init__ would exist
-            # Since it doesn't, that means that `__pydantic_private__`
-            # should be set to None
-            object.__setattr__(model, "__pydantic_private__", None)
-
-        return model
+        pass
 
     @classmethod
     def _construct_relations(cls: type["T"], model: "T", values: builtins.dict) -> None:
-        present_relations = [
-            relation for relation in cls.extract_related_names() if relation in values
-        ]
-        for relation in present_relations:
-            value_to_set = values[relation]
-            if not isinstance(value_to_set, list):
-                value_to_set = [value_to_set]
-            relation_field = cls.ormar_config.model_fields[relation]
-            relation_value = [
-                relation_field.expand_relationship(x, model, to_register=False)
-                for x in value_to_set
-                if x is not None
-            ]
-
-            for child in relation_value:
-                model._orm.add(
-                    parent=cast("Model", child),
-                    child=cast("Model", model),
-                    field=cast("ForeignKeyField", relation_field),
-                )
+        pass
 
     def update_from_dict(self, value_dict: builtins.dict) -> "NewBaseModel":
         """
@@ -1148,14 +948,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: converted value if needed, else original value
         :rtype: Any
         """
-        if column_name not in self._bytes_fields:
-            return value
-        field = self.ormar_config.model_fields[column_name]
-        if value is not None:
-            value = decode_bytes(
-                value=value, represent_as_string=field.represent_as_base64_str
-            )
-        return value
+        pass
 
     def _convert_bytes_to_str(
         self, column_name: str, value: Any
@@ -1194,9 +987,7 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
         :return: converted value if needed, else original value
         :rtype: Any
         """
-        if column_name not in self._json_fields:
-            return value
-        return encode_json(value)
+        pass
 
     def _extract_own_model_fields(self) -> builtins.dict:
         """

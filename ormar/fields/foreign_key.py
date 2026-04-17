@@ -37,15 +37,7 @@ def create_dummy_instance(fk: type["T"], pk: Any = None) -> "T":
     :return: Model instance populated with only pk
     :rtype: Model
     """
-    init_dict = {
-        **{fk.ormar_config.pkname: pk or -1},
-        **{
-            k: create_dummy_instance(v.to)
-            for k, v in fk.ormar_config.model_fields.items()
-            if v.is_relation and not v.nullable and not v.virtual
-        },
-    }
-    return cast("T", fk._internal_construct(_pk_only=True, _excluded=None, **init_dict))
+    pass
 
 
 def create_dummy_model(
@@ -467,12 +459,7 @@ class ForeignKeyField(BaseField):  # type: ignore[misc]
         :return: list (if needed) registered Models
         :rtype: list["Model"]
         """
-        return [
-            self.expand_relationship(  # type: ignore
-                value=val, child=child, to_register=to_register
-            )
-            for val in value
-        ]
+        pass
 
     def _register_existing_model(
         self, value: "Model", child: "Model", to_register: bool
@@ -492,9 +479,7 @@ class ForeignKeyField(BaseField):  # type: ignore[misc]
         :return: (if needed) registered Model
         :rtype: Model
         """
-        if to_register:
-            self.register_relation(model=value, child=child)
-        return value
+        pass
 
     def _construct_model_from_dict(
         self, value: dict, child: "Model", to_register: bool
@@ -515,25 +500,7 @@ class ForeignKeyField(BaseField):  # type: ignore[misc]
         :return: (if needed) registered Model
         :rtype: Model
         """
-        pk_only_model = None
-        keys = set(value.keys())
-        own_keys = keys - self.to.extract_related_names()
-        if (
-            len(own_keys) == 1
-            and list(own_keys)[0] == self.to.ormar_config.pkname
-            and value.get(self.to.ormar_config.pkname) is not None
-            and not self.is_through
-        ):
-            pk_only_model = self.to_pk_only(**value)
-            model = cast(
-                "Model",
-                self.to._internal_construct(_pk_only=True, _excluded=None, **value),
-            )
-        else:
-            model = self.to(**value)
-        if to_register:
-            self.register_relation(model=model, child=child)
-        return pk_only_model if pk_only_model is not None else model
+        pass
 
     def _construct_model_from_pk(
         self, value: Any, child: "Model", to_register: bool
@@ -553,21 +520,7 @@ class ForeignKeyField(BaseField):  # type: ignore[misc]
         :return: (if needed) registered Model
         :rtype: Model
         """
-        if self.to.pk_type() == uuid.UUID and isinstance(value, str):  # pragma: nocover
-            value = uuid.UUID(value)
-        if not isinstance(value, self.to.pk_type()):
-            if isinstance(value, self.to_pk_only):
-                value = getattr(value, self.to.ormar_config.pkname)
-            else:
-                raise RelationshipInstanceError(
-                    f"Relationship error - ForeignKey {self.to.__name__} "
-                    f"is of type {self.to.pk_type()} "
-                    f"while {type(value)} passed as a parameter."
-                )
-        model = create_dummy_instance(fk=self.to, pk=value)
-        if to_register:
-            self.register_relation(model=model, child=child)
-        return model
+        pass
 
     def register_relation(self, model: "Model", child: "Model") -> None:
         """
@@ -582,7 +535,7 @@ class ForeignKeyField(BaseField):  # type: ignore[misc]
         :param child: child model
         :type child: Model class
         """
-        model._orm.add(parent=model, child=child, field=self)
+        pass
 
     def has_unresolved_forward_refs(self) -> bool:
         """
@@ -617,18 +570,7 @@ class ForeignKeyField(BaseField):  # type: ignore[misc]
         :return: returns a Model or a list of Models
         :rtype: Optional[Union["Model", list["Model"]]]
         """
-        if value is None:
-            return None if not self.virtual else []
-        constructors = {
-            f"{self.to.__name__}": self._register_existing_model,
-            "dict": self._construct_model_from_dict,
-            "list": self._extract_model_from_sequence,
-        }
-
-        model = constructors.get(  # type: ignore
-            value.__class__.__name__, self._construct_model_from_pk
-        )(value, child, to_register)
-        return model
+        pass
 
     def get_relation_name(self) -> str:  # pragma: no cover
         """

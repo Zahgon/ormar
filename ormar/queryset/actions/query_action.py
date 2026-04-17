@@ -54,13 +54,12 @@ class QueryAction(abc.ABC):
     @property
     def table(self) -> sqlalchemy.Table:
         """Shortcut to sqlalchemy Table of filtered target model"""
-        return self.target_model.ormar_config.table
+        pass
 
     @property
     def column(self) -> sqlalchemy.Column:
         """Shortcut to sqlalchemy column of filtered target model"""
-        aliased_name = self.target_model.get_column_alias(self.field_name)
-        return self.target_model.ormar_config.table.columns[aliased_name]
+        pass
 
     def update_select_related(self, select_related: list[str]) -> list[str]:
         """
@@ -85,9 +84,4 @@ class QueryAction(abc.ABC):
         Walks the relation to retrieve the actual model on which the clause should be
         constructed, extracts alias based on last relation leading to target model.
         """
-        (
-            self.table_prefix,
-            self.target_model,
-            self.related_str,
-            self.is_through,
-        ) = get_relationship_alias_model_and_str(self.source_model, self.related_parts)
+        pass

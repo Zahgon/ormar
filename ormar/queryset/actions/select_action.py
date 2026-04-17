@@ -27,16 +27,14 @@ class SelectAction(QueryAction):
             self.table_prefix = alias
 
     def _split_value_into_parts(self, order_str: str) -> None:
-        parts = order_str.split("__")
-        self.field_name = parts[-1]
-        self.related_parts = parts[:-1]
+        pass
 
     @property
     def is_numeric(self) -> bool:
-        return self.get_target_field_type() in [int, float, decimal.Decimal]
+        pass
 
     def get_target_field_type(self) -> Any:
-        return self.target_model.ormar_config.model_fields[self.field_name].__type__
+        pass
 
     def get_text_clause(self) -> sqlalchemy.sql.expression.TextClause:
         alias = f"{self.table_prefix}_" if self.table_prefix else ""
@@ -45,8 +43,4 @@ class SelectAction(QueryAction):
     def apply_func(
         self, func: Callable, use_label: bool = True
     ) -> sqlalchemy.sql.expression.TextClause:
-        result = func(self.get_text_clause())
-        if use_label:
-            rel_prefix = f"{self.related_str}__" if self.related_str else ""
-            result = result.label(f"{rel_prefix}{self.field_name}")
-        return result
+        pass

@@ -54,9 +54,7 @@ class Query:
         """
         Initialize empty order_by dict to be populated later during the query call
         """
-        if self.order_columns:
-            for clause in self.order_columns:
-                self.sorted_orders[clause] = None  # type: ignore
+        pass
 
     def apply_order_bys_for_primary_model(self) -> None:  # noqa: CCR001
         """

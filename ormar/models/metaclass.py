@@ -68,12 +68,7 @@ def add_cached_properties(new_model: type["Model"]) -> None:
     :param new_model: newly constructed Model
     :type new_model: Model class
     """
-    new_model._quick_access_fields = quick_access_set
-    new_model._related_names = None
-    new_model._through_names = None
-    new_model._related_fields = None
-    new_model._json_fields = set()
-    new_model._bytes_fields = set()
+    pass
 
 
 def add_property_fields(new_model: type["Model"], attrs: dict) -> None:  # noqa: CCR001
@@ -89,19 +84,7 @@ def add_property_fields(new_model: type["Model"], attrs: dict) -> None:  # noqa:
     :param attrs:
     :type attrs: dict[str, str]
     """
-    props = set()
-    for var_name, value in attrs.items():
-        if hasattr(value, "decorator_info") and isinstance(
-            value.decorator_info, ComputedFieldInfo
-        ):
-            props.add(var_name)
-
-    if config_field_not_set(model=new_model, field_name="property_fields"):
-        new_model.ormar_config.property_fields = props
-    else:
-        new_model.ormar_config.property_fields = (
-            new_model.ormar_config.property_fields.union(props)
-        )
+    pass
 
 
 def register_signals(new_model: type["Model"]) -> None:  # noqa: CCR001
@@ -114,19 +97,7 @@ def register_signals(new_model: type["Model"]) -> None:  # noqa: CCR001
     :param new_model: newly constructed model
     :type new_model: Model class
     """
-    if config_field_not_set(model=new_model, field_name="signals"):
-        signals = new_model.ormar_config.signals
-        signals.pre_save = Signal()
-        signals.pre_update = Signal()
-        signals.pre_delete = Signal()
-        signals.post_save = Signal()
-        signals.post_update = Signal()
-        signals.post_delete = Signal()
-        signals.pre_relation_add = Signal()
-        signals.post_relation_add = Signal()
-        signals.pre_relation_remove = Signal()
-        signals.post_relation_remove = Signal()
-        signals.post_bulk_update = Signal()
+    pass
 
 
 def verify_constraint_names(
@@ -144,22 +115,7 @@ def verify_constraint_names(
     :param parent_value: list of base class constraints
     :type parent_value: list
     """
-    new_aliases = {x.name: x.get_alias() for x in model_fields.values()}
-    old_aliases = {
-        x.name: x.get_alias() for x in base_class.ormar_config.model_fields.values()
-    }
-    old_aliases.update(new_aliases)
-    constraints_columns = [x._pending_colargs for x in parent_value]
-    for column_set in constraints_columns:
-        if any(x not in old_aliases.values() for x in column_set):
-            raise ModelDefinitionError(
-                f"Column constraints "
-                f"{column_set} "
-                f"has column names "
-                f"that are not in the model fields."
-                f"\n Check columns redefined in subclasses "
-                f"to verify that they have proper 'name' set."
-            )
+    pass
 
 
 def get_constraint_copy(
@@ -204,29 +160,7 @@ def update_attrs_from_base_config(  # noqa: CCR001
     :param model_fields: ormar fields in defined in current class
     :type model_fields: dict[str, BaseField]
     """
-
-    params_to_update = ["metadata", "database", "constraints", "property_fields"]
-    for param in params_to_update:
-        current_value = attrs.get("ormar_config", {}).__dict__.get(
-            param, ormar.Undefined
-        )
-        parent_value = (
-            base_class.ormar_config.__dict__.get(param)
-            if hasattr(base_class, "ormar_config")
-            else None
-        )
-        if parent_value:
-            if param == "constraints":
-                verify_constraint_names(
-                    base_class=base_class,
-                    model_fields=model_fields,
-                    parent_value=parent_value,
-                )
-                parent_value = [get_constraint_copy(value) for value in parent_value]
-            if isinstance(current_value, list):
-                current_value.extend(parent_value)
-            else:
-                setattr(attrs["ormar_config"], param, parent_value)
+    pass
 
 
 def copy_and_replace_m2m_through_model(  # noqa: CFQ002
@@ -265,62 +199,7 @@ def copy_and_replace_m2m_through_model(  # noqa: CFQ002
     :param ormar_config: metaclass of currently created model
     :type ormar_config: OrmarConfig
     """
-    Field: type[BaseField] = type(  # type: ignore
-        field.__class__.__name__, (ManyToManyField, BaseField), {}
-    )
-    copy_field = Field(**dict(field.__dict__))
-    related_name = field.related_name + "_" + table_name
-    copy_field.related_name = related_name  # type: ignore
-
-    through_class = field.through
-    if not through_class:
-        field.owner = base_class
-        field.create_default_through_model()
-        through_class = field.through
-    new_config = ormar.OrmarConfig(
-        tablename=through_class.ormar_config.tablename,
-        metadata=through_class.ormar_config.metadata,
-        database=through_class.ormar_config.database,
-        abstract=through_class.ormar_config.abstract,
-        queryset_class=through_class.ormar_config.queryset_class,
-        extra=through_class.ormar_config.extra,
-        constraints=through_class.ormar_config.constraints,
-        order_by=through_class.ormar_config.orders_by,
-    )
-    new_config.table = through_class.ormar_config.pkname  # type: ignore
-    new_config.pkname = through_class.ormar_config.pkname
-    new_config.alias_manager = through_class.ormar_config.alias_manager
-    new_config.signals = through_class.ormar_config.signals
-    new_config.requires_ref_update = through_class.ormar_config.requires_ref_update
-    new_config.model_fields = copy.deepcopy(through_class.ormar_config.model_fields)
-    new_config.property_fields = copy.deepcopy(
-        through_class.ormar_config.property_fields
-    )
-    copy_name = through_class.__name__ + attrs.get("__name__", "")
-    copy_through = cast(
-        type[ormar.Model], type(copy_name, (ormar.Model,), {"ormar_config": new_config})
-    )
-    # create new table with copied columns but remove foreign keys
-    # they will be populated later in expanding reverse relation
-    # if hasattr(new_config, "table"):
-    new_config.tablename += "_" + ormar_config.tablename
-    new_config.table = None  # type: ignore
-    new_config.model_fields = {
-        name: field
-        for name, field in new_config.model_fields.items()
-        if not field.is_relation
-    }
-    _, columns = sqlalchemy_columns_from_model_fields(
-        new_config.model_fields, copy_through
-    )  # type: ignore
-    new_config.columns = columns
-    populate_config_sqlalchemy_table_if_required(config=new_config)
-    copy_field.through = copy_through
-
-    parent_fields[field_name] = copy_field
-
-    if through_class.ormar_config.table in through_class.ormar_config.metadata:
-        through_class.ormar_config.metadata.remove(through_class.ormar_config.table)
+    pass
 
 
 def copy_data_from_parent_model(  # noqa: CCR001
@@ -350,55 +229,7 @@ def copy_data_from_parent_model(  # noqa: CCR001
     :return: updated attrs and model_fields
     :rtype: tuple[dict, dict]
     """
-    if attrs.get("ormar_config"):
-        if model_fields and not base_class.ormar_config.abstract:  # type: ignore
-            raise ModelDefinitionError(
-                f"{curr_class.__name__} cannot inherit "
-                f"from non abstract class {base_class.__name__}"
-            )
-        update_attrs_from_base_config(
-            base_class=base_class,  # type: ignore
-            attrs=attrs,
-            model_fields=model_fields,
-        )
-        parent_fields: dict = dict()
-        ormar_config = attrs.get("ormar_config")
-        if not ormar_config:  # pragma: no cover
-            raise ModelDefinitionError(
-                f"Model {curr_class.__name__} declared without ormar_config"
-            )
-        table_name = (
-            ormar_config.tablename
-            if hasattr(ormar_config, "tablename") and ormar_config.tablename
-            else attrs.get("__name__", "").lower() + "s"
-        )
-        for field_name, field in base_class.ormar_config.model_fields.items():
-            if field.is_multi:
-                field = cast(ManyToManyField, field)
-                copy_and_replace_m2m_through_model(
-                    field=field,
-                    field_name=field_name,
-                    table_name=table_name,
-                    parent_fields=parent_fields,
-                    attrs=attrs,
-                    ormar_config=ormar_config,
-                    base_class=base_class,  # type: ignore
-                )
-
-            elif field.is_relation and field.related_name:
-                Field = type(  # type: ignore
-                    field.__class__.__name__, (ForeignKeyField, BaseField), {}
-                )
-                copy_field = Field(**dict(field.__dict__))
-                related_name = field.related_name + "_" + table_name
-                copy_field.related_name = related_name  # type: ignore
-                parent_fields[field_name] = copy_field
-            else:
-                parent_fields[field_name] = field
-
-        parent_fields.update(model_fields)  # type: ignore
-        model_fields = parent_fields
-    return attrs, model_fields
+    pass
 
 
 def extract_from_parents_definition(  # noqa: CCR001
@@ -430,52 +261,7 @@ def extract_from_parents_definition(  # noqa: CCR001
     :return: updated attrs and model_fields
     :rtype: tuple[dict, dict]
     """
-    if hasattr(base_class, "ormar_config"):
-        base_class = cast(type["Model"], base_class)
-        return copy_data_from_parent_model(
-            base_class=base_class,
-            curr_class=curr_class,
-            attrs=attrs,
-            model_fields=model_fields,
-        )
-
-    key = "__annotations__"
-    if hasattr(base_class, PARSED_FIELDS_KEY):
-        # model was already parsed -> fields definitions need to be removed from class
-        # cause pydantic complains about field re-definition so after first child
-        # we need to extract from __parsed_fields__ not the class itself
-        new_attrs, new_model_fields = getattr(base_class, PARSED_FIELDS_KEY)
-
-        new_fields = set(new_model_fields.keys())
-        model_fields = update_attrs_and_fields(
-            attrs=attrs,
-            new_attrs=new_attrs,
-            model_fields=model_fields,
-            new_model_fields=new_model_fields,
-            new_fields=new_fields,
-        )
-        return attrs, model_fields
-
-    potential_fields = get_potential_fields(base_class.__dict__)
-    if potential_fields:
-        # parent model has ormar fields defined and was not parsed before
-        new_attrs = {key: {k: v for k, v in base_class.__dict__.get(key, {}).items()}}
-        new_attrs.update(potential_fields)
-
-        new_fields = set(potential_fields.keys())
-        for name in new_fields:
-            delattr(base_class, name)
-
-        new_attrs, new_model_fields = extract_annotations_and_default_vals(new_attrs)
-        setattr(base_class, PARSED_FIELDS_KEY, (new_attrs, new_model_fields))
-        model_fields = update_attrs_and_fields(
-            attrs=attrs,
-            new_attrs=new_attrs,
-            model_fields=model_fields,
-            new_model_fields=new_model_fields,
-            new_fields=new_fields,
-        )
-    return attrs, model_fields
+    pass
 
 
 def update_attrs_and_fields(
@@ -500,12 +286,7 @@ def update_attrs_and_fields(
     :param new_fields: set of new fields names
     :type new_fields: set[str]
     """
-    key = "__annotations__"
-    attrs[key].update(new_attrs[key])
-    attrs.update({name: new_attrs[name] for name in new_fields})
-    updated_model_fields = {k: v for k, v in new_model_fields.items()}
-    updated_model_fields.update(model_fields)
-    return updated_model_fields
+    pass
 
 
 def add_field_descriptor(
@@ -523,39 +304,11 @@ def add_field_descriptor(
     :param new_model: model with fields
     :type new_model: type["Model]
     """
-    if field.is_relation:
-        setattr(new_model, name, RelationDescriptor(name=name))
-    elif field.__type__ == pydantic.Json:
-        setattr(new_model, name, JsonDescriptor(name=name))
-    elif field.__type__ is bytes:
-        setattr(new_model, name, BytesDescriptor(name=name))
-    else:
-        setattr(new_model, name, PydanticDescriptor(name=name))
+    pass
 
 
 def get_serializer() -> Callable:
-    def serialize(
-        self: "Model",
-        value: Optional["Model"],
-        handler: SerializerFunctionWrapHandler,
-    ) -> Any:
-        """
-        Serialize a value if it's not expired weak reference.
-        """
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore", message="Pydantic serializer warnings"
-                )
-                return handler(value)
-        except ReferenceError:
-            return None
-        except ValueError as exc:
-            if not str(exc).startswith("Circular reference"):
-                raise exc
-            return {value.ormar_config.pkname: value.pk} if value else None
-
-    return serialize
+    pass
 
 
 class ModelMetaclass(pydantic._internal._model_construction.ModelMetaclass):
@@ -670,13 +423,7 @@ class ModelMetaclass(pydantic._internal._model_construction.ModelMetaclass):
 
     @property
     def objects(cls: type["T"]) -> "QuerySet[T]":  # type: ignore
-        if cls.ormar_config.requires_ref_update:
-            raise ModelError(
-                f"Model {cls.get_name()} has not updated "
-                f"ForwardRefs. \nBefore using the model you "
-                f"need to call update_forward_refs()."
-            )
-        return cls.ormar_config.queryset_class(model_cls=cls)
+        pass
 
     def __getattr__(self, item: str) -> Any:
         """

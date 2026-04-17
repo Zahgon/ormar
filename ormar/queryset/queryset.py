@@ -76,9 +76,7 @@ class QuerySet(Generic[T]):
         :return: OrmarConfig of the model
         :rtype: model's OrmarConfig
         """
-        if not self.model_cls:  # pragma nocover
-            raise ValueError("Model class of QuerySet is not initialized")
-        return self.model_cls.ormar_config
+        pass
 
     @property
     def model(self) -> type["T"]:
@@ -197,25 +195,7 @@ class QuerySet(Generic[T]):
         :return: list of resolver groups
         :rtype: tuple[list[FilterGroup], list[str]]
         """
-        filter_groups = []
-        select_related = self._select_related
-        if groups:
-            for group in groups:
-                if not isinstance(group, FilterGroup):
-                    raise QueryDefinitionError(
-                        "Only ormar.and_ and ormar.or_ "
-                        "can be passed as filter positional"
-                        " arguments,"
-                        "other values need to be passed by"
-                        "keyword arguments"
-                    )
-                _, select_related = group.resolve(
-                    model_cls=self.model,
-                    select_related=self._select_related,
-                    filter_clauses=self.filter_clauses,
-                )
-                filter_groups.append(group)
-        return filter_groups, select_related
+        pass
 
     @staticmethod
     def check_single_result_rows_count(rows: Sequence[Optional["T"]]) -> None:
@@ -238,7 +218,7 @@ class QuerySet(Generic[T]):
         :return: database table
         :rtype: sqlalchemy.Table
         """
-        return self.model_config.table
+        pass
 
     def build_select_expression(
         self,
@@ -308,26 +288,7 @@ class QuerySet(Generic[T]):
         :return: filtered QuerySet
         :rtype: QuerySet
         """
-        filter_groups, select_related = self._resolve_filter_groups(groups=args)
-        qryclause = QueryClause(
-            model_cls=self.model,
-            select_related=select_related,
-            filter_clauses=self.filter_clauses,
-        )
-        filter_clauses, select_related = qryclause.prepare_filter(**kwargs)
-        filter_clauses = filter_clauses + filter_groups  # type: ignore
-        if _exclude:
-            exclude_clauses = filter_clauses
-            filter_clauses = self.filter_clauses
-        else:
-            exclude_clauses = self.exclude_clauses
-            filter_clauses = filter_clauses
-
-        return self.rebuild_self(
-            filter_clauses=filter_clauses,
-            exclude_clauses=exclude_clauses,
-            select_related=select_related,
-        )
+        pass
 
     def exclude(self, *args: Any, **kwargs: Any) -> "QuerySet[T]":  # noqa: A003
         """
@@ -348,7 +309,7 @@ class QuerySet(Generic[T]):
         :return: filtered QuerySet
         :rtype: QuerySet
         """
-        return self.filter(_exclude=True, *args, **kwargs)
+        pass
 
     def select_related(self, related: Union[list, str, FieldAccessor]) -> "QuerySet[T]":
         """
@@ -398,10 +359,7 @@ class QuerySet(Generic[T]):
         :return: reloaded Model
         :rtype: Model
         """
-        relations = list(self.model.extract_related_names())
-        if follow:
-            relations = self.model._iterate_related_models()
-        return self.rebuild_self(select_related=relations)
+        pass
 
     def prefetch_related(
         self, related: Union[list, str, FieldAccessor]
@@ -644,12 +602,7 @@ class QuerySet(Generic[T]):
         :param flatten: when one field is passed you can flatten the list of tuples
         :type flatten: bool
         """
-        return await self.values(
-            fields=fields,
-            exclude_through=exclude_through,
-            _as_dict=False,
-            _flatten=flatten,
-        )
+        pass
 
     async def exists(self) -> bool:
         """
@@ -659,11 +612,7 @@ class QuerySet(Generic[T]):
         :return: result of the check
         :rtype: bool
         """
-        expr = self.build_select_expression()
-        expr = sqlalchemy.exists(expr).select()
-        async with self.model_config.database.get_query_executor() as executor:
-            result = await executor.fetch_val(expr)
-            return bool(result)
+        pass
 
     async def count(self, distinct: bool = True) -> int:
         """
@@ -692,27 +641,7 @@ class QuerySet(Generic[T]):
             return int(result) if result is not None else 0
 
     async def _query_aggr_function(self, func_name: str, columns: list) -> Any:
-        func = getattr(sqlalchemy.func, func_name)
-        select_actions = [
-            SelectAction(select_str=column, model_cls=self.model) for column in columns
-        ]
-        if func_name in ["sum", "avg"]:
-            if any(not x.is_numeric for x in select_actions):
-                raise QueryDefinitionError(
-                    "You can use sum and svg only with numeric types of columns"
-                )
-        if any(x.field_name not in x.target_model.model_fields for x in select_actions):
-            raise QueryDefinitionError(
-                "You can use aggregate functions only on "
-                "existing columns of the target model"
-            )
-        select_columns = [x.apply_func(func, use_label=True) for x in select_actions]
-        expr = self.build_select_expression().alias(f"subquery_for_{func_name}")
-        expr = sqlalchemy.select(*select_columns).select_from(expr)  # type: ignore
-        # print("\n", expr.compile(compile_kwargs={"literal_binds": True}))
-        async with self.model_config.database.get_query_executor() as executor:
-            result = await executor.fetch_one(expr)  # type: ignore
-        return dict(result) if len(result) > 1 else result[columns[0]]  # type: ignore
+        pass
 
     async def max(self, columns: Union[str, list[str]]) -> Any:  # noqa: A003
         """
@@ -722,9 +651,7 @@ class QuerySet(Generic[T]):
         :return: max value of column(s)
         :rtype: Any
         """
-        if not isinstance(columns, list):
-            columns = [columns]
-        return await self._query_aggr_function(func_name="max", columns=columns)
+        pass
 
     async def min(self, columns: Union[str, list[str]]) -> Any:  # noqa: A003
         """
@@ -734,9 +661,7 @@ class QuerySet(Generic[T]):
         :return: min value of column(s)
         :rtype: Any
         """
-        if not isinstance(columns, list):
-            columns = [columns]
-        return await self._query_aggr_function(func_name="min", columns=columns)
+        pass
 
     async def sum(self, columns: Union[str, list[str]]) -> Any:  # noqa: A003
         """
@@ -746,9 +671,7 @@ class QuerySet(Generic[T]):
         :return: sum value of columns
         :rtype: int
         """
-        if not isinstance(columns, list):
-            columns = [columns]
-        return await self._query_aggr_function(func_name="sum", columns=columns)
+        pass
 
     async def avg(self, columns: Union[str, list[str]]) -> Any:
         """
@@ -758,9 +681,7 @@ class QuerySet(Generic[T]):
         :return: avg value of columns
         :rtype: Union[int, float, list]
         """
-        if not isinstance(columns, list):
-            columns = [columns]
-        return await self._query_aggr_function(func_name="avg", columns=columns)
+        pass
 
     async def update(self, each: bool = False, **kwargs: Any) -> int:
         """
@@ -840,12 +761,7 @@ class QuerySet(Generic[T]):
         :return: QuerySet
         :rtype: QuerySet
         """
-        if page < 1 or page_size < 1:
-            raise QueryDefinitionError("Page size and page have to be greater than 0.")
-
-        limit_count = page_size
-        query_offset = (page - 1) * page_size
-        return self.rebuild_self(limit_count=limit_count, offset=query_offset)
+        pass
 
     def limit(
         self, limit_count: int, limit_raw_sql: Optional[bool] = None
@@ -933,10 +849,7 @@ class QuerySet(Generic[T]):
         :return: returned model
         :rtype: Model
         """
-        try:
-            return await self.first(*args, **kwargs)
-        except ormar.NoMatch:
-            return None
+        pass
 
     async def get_or_none(self, *args: Any, **kwargs: Any) -> Optional["T"]:
         """
@@ -955,10 +868,7 @@ class QuerySet(Generic[T]):
         :return: returned model
         :rtype: Model
         """
-        try:
-            return await self.get(*args, **kwargs)
-        except ormar.NoMatch:
-            return None
+        pass
 
     async def get(self, *args: Any, **kwargs: Any) -> "T":  # noqa: CCR001
         """
@@ -1028,11 +938,7 @@ class QuerySet(Generic[T]):
         :return: model instance and a boolean
         :rtype: tuple("T", bool)
         """
-        try:
-            return await self.get(*args, **kwargs), False
-        except NoMatch:
-            _defaults = _defaults or {}
-            return await self.create(**{**kwargs, **_defaults}), True
+        pass
 
     async def update_or_create(self, **kwargs: Any) -> "T":
         """
@@ -1065,17 +971,7 @@ class QuerySet(Generic[T]):
         :return: list of returned models
         :rtype: list[Model]
         """
-        if kwargs or args:
-            return await self.filter(*args, **kwargs).all()
-
-        expr = self.build_select_expression()
-        async with self.model_config.database.get_query_executor() as executor:
-            rows = await executor.fetch_all(expr)
-        result_rows = await self._process_query_result_rows(rows)
-        if self._prefetch_related and result_rows:
-            result_rows = await self._prefetch_related_models(result_rows, rows)
-
-        return result_rows
+        pass
 
     async def iterate(  # noqa: A003
         self,
@@ -1095,37 +991,7 @@ class QuerySet(Generic[T]):
         :return: asynchronous iterable generator of returned models
         :rtype: AsyncGenerator[Model]
         """
-
-        if self._prefetch_related:
-            raise QueryDefinitionError(
-                "Prefetch related queries are not supported in iterators"
-            )
-
-        if kwargs or args:
-            async for result in self.filter(*args, **kwargs).iterate():
-                yield result
-            return
-
-        expr = self.build_select_expression()
-
-        rows: list = []
-        last_primary_key = None
-        pk_alias = self.model.get_column_alias(self.model_config.pkname)
-
-        async with self.model_config.database.get_query_executor() as executor:
-            async for row in executor.iterate(expr):
-                current_primary_key = row[pk_alias]
-                if last_primary_key == current_primary_key or last_primary_key is None:
-                    last_primary_key = current_primary_key
-                    rows.append(row)
-                    continue
-
-                yield (await self._process_query_result_rows(rows))[0]
-                last_primary_key = current_primary_key
-                rows = [row]
-
-            if rows:
-                yield (await self._process_query_result_rows(rows))[0]
+        pass
 
     async def create(self, **kwargs: Any) -> "T":
         """

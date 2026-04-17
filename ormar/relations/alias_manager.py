@@ -52,11 +52,7 @@ class AliasManager:
         :return: dictionary of prefix to relation
         :rtype: dict
         """
-        if self._reversed_aliases:
-            return self._reversed_aliases
-        reversed_aliases = {v: k for k, v in self._aliases_new.items()}
-        self._reversed_aliases = reversed_aliases
-        return self._reversed_aliases
+        pass
 
     @staticmethod
     def prefixed_columns(

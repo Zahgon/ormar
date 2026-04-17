@@ -51,9 +51,7 @@ class DatabaseConnection:
 
                 @event.listens_for(self._engine.sync_engine, "connect")
                 def set_sqlite_pragma(dbapi_conn: Any, connection_record: Any) -> None:
-                    cursor = dbapi_conn.cursor()
-                    cursor.execute("PRAGMA foreign_keys=ON")
-                    cursor.close()
+                    pass
 
             if self._force_rollback:
                 assert self._global_transaction is None
@@ -79,23 +77,22 @@ class DatabaseConnection:
     @property
     def is_connected(self) -> bool:
         """Check if the engine is connected."""
-        return self._engine is not None
+        pass
 
     @property
     def engine(self) -> AsyncEngine:
         """Get the async engine."""
-        assert self._engine is not None, "DatabaseConnection not connected"
-        return self._engine
+        pass
 
     @property
     def dialect(self) -> Any:
         """Get the database dialect."""
-        return self.engine.dialect
+        pass
 
     @property
     def url(self) -> str:
         """Get the database URL."""
-        return self._url
+        pass
 
     @asynccontextmanager
     async def connection(self) -> AsyncIterator[AsyncConnection]:
@@ -103,12 +100,7 @@ class DatabaseConnection:
         Get a connection from the pool.
         If inside a transaction, returns the transaction connection.
         """
-        trans_conn = _transaction_connection.get()
-        if trans_conn is not None:
-            yield trans_conn
-        else:
-            async with self.engine.connect() as conn:
-                yield conn
+        pass
 
     def transaction(self, force_rollback: bool = False) -> Transaction:
         """
@@ -116,7 +108,7 @@ class DatabaseConnection:
 
         :param force_rollback: If True, always rollback (used for testing)
         """
-        return Transaction(self, force_rollback=force_rollback)
+        pass
 
     @asynccontextmanager
     async def get_query_executor(self) -> AsyncIterator[QueryExecutor]:

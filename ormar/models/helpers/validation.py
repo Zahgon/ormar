@@ -203,8 +203,7 @@ def construct_schema_function() -> Callable:
     """
 
     def schema_extra(schema: dict[str, Any], model: type["Model"]) -> None:
-        overwrite_example_and_description(schema=schema, model=model)
-        overwrite_binary_format(schema=schema, model=model)
+        pass
 
     return staticmethod(schema_extra)  # type: ignore
 

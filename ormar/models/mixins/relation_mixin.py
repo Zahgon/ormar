@@ -44,17 +44,7 @@ class RelationMixin:
         :return: list of related fields
         :rtype: list
         """
-        if cls._related_fields is not None:
-            return cls._related_fields
-
-        related_fields = []
-        for name in cls.extract_related_names().union(cls.extract_through_names()):
-            related_fields.append(
-                cast("ForeignKeyField", cls.ormar_config.model_fields[name])
-            )
-        cls._related_fields = related_fields
-
-        return related_fields
+        pass
 
     @classmethod
     def extract_through_names(cls) -> set[str]:

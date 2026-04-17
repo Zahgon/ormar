@@ -97,6 +97,4 @@ class QueryExecutor:
         :param query: SQLAlchemy query expression
         :return: Async iterator of Row objects
         """
-        async with self._connection.stream(query) as result:
-            async for row in result.mappings():
-                yield row
+        pass

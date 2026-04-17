@@ -26,12 +26,7 @@ if TYPE_CHECKING:  # pragma: nocover
 
 class EncryptBackend(abc.ABC):
     def _refresh(self, key: Union[str, bytes]) -> None:
-        if isinstance(key, str):
-            key = key.encode()
-        digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-        digest.update(key)
-        engine_key = digest.finalize()
-        self._initialize_backend(engine_key)
+        pass
 
     @abc.abstractmethod
     def _initialize_backend(self, secret_key: bytes) -> None:  # pragma: nocover
@@ -52,22 +47,13 @@ class HashBackend(EncryptBackend):
     """
 
     def _initialize_backend(self, secret_key: bytes) -> None:
-        self.secret_key = base64.urlsafe_b64encode(secret_key)
+        pass
 
     def encrypt(self, value: Any) -> str:
-        if not isinstance(value, str):  # pragma: nocover
-            value = repr(value)
-        value = value.encode()
-        digest = hashes.Hash(hashes.SHA512(), backend=default_backend())
-        digest.update(self.secret_key)
-        digest.update(value)
-        hashed_value = digest.finalize()
-        return hashed_value.hex()
+        pass
 
     def decrypt(self, value: Any) -> str:
-        if not isinstance(value, str):  # pragma: nocover
-            value = str(value)
-        return value
+        pass
 
 
 class FernetBackend(EncryptBackend):
@@ -76,23 +62,13 @@ class FernetBackend(EncryptBackend):
     """
 
     def _initialize_backend(self, secret_key: bytes) -> None:
-        self.secret_key = base64.urlsafe_b64encode(secret_key)
-        self.fernet = Fernet(self.secret_key)
+        pass
 
     def encrypt(self, value: Any) -> str:
-        if not isinstance(value, str):
-            value = repr(value)
-        value = value.encode()
-        encrypted = self.fernet.encrypt(value)
-        return encrypted.decode("utf-8")
+        pass
 
     def decrypt(self, value: Any) -> str:
-        if not isinstance(value, str):  # pragma: nocover
-            value = str(value)
-        decrypted: Union[str, bytes] = self.fernet.decrypt(value.encode())
-        if not isinstance(decrypted, str):
-            decrypted = decrypted.decode("utf-8")
-        return decrypted
+        pass
 
 
 class EncryptBackends(Enum):
@@ -153,57 +129,18 @@ class EncryptedString(types.TypeDecorator):
         return "TEXT()"
 
     def load_dialect_impl(self, dialect: Dialect) -> Any:
-        return dialect.type_descriptor(types.TEXT())
+        pass
 
     def _refresh(self) -> None:
-        key = self._key() if callable(self._key) else self._key
-        self.backend._refresh(key)
+        pass
 
     def process_bind_param(self, value: Any, dialect: Dialect) -> Optional[str]:
-        if value is None:
-            return value
-        self._refresh()
-        try:
-            value = self._underlying_type.process_bind_param(value, dialect)
-        except AttributeError:
-            encoder, additional_parameter = self._get_coder_type_and_params(
-                coders=ormar.SQL_ENCODERS_MAP
-            )
-            if encoder is not None:
-                params = [value] + (
-                    [additional_parameter] if additional_parameter else []
-                )
-                value = encoder(*params)
-
-        encrypted_value = self.backend.encrypt(value)
-        return encrypted_value
+        pass
 
     def process_result_value(self, value: Any, dialect: Dialect) -> Any:
-        if value is None:  # pragma: no cover
-            return value
-        self._refresh()
-        decrypted_value = self.backend.decrypt(value)
-        try:
-            return self._underlying_type.process_result_value(decrypted_value, dialect)
-        except AttributeError:
-            decoder, additional_parameter = self._get_coder_type_and_params(
-                coders=ormar.DECODERS_MAP
-            )
-            if decoder is not None:
-                params = [decrypted_value] + (
-                    [additional_parameter] if additional_parameter else []
-                )
-                return decoder(*params)  # type: ignore
-
-            return self._field_type.__type__(decrypted_value)  # type: ignore
+        pass
 
     def _get_coder_type_and_params(
         self, coders: dict[type, Callable]
     ) -> tuple[Optional[Callable], Optional[str]]:
-        coder = coders.get(self.type_, None)
-        additional_parameter: Optional[str] = None
-        if self.type_ in ADDITIONAL_PARAMETERS_MAP:
-            additional_parameter = getattr(
-                self._field_type, ADDITIONAL_PARAMETERS_MAP[self.type_]
-            )
-        return coder, additional_parameter
+        pass

@@ -62,20 +62,10 @@ class FilterAction(QueryAction):
 
     def has_escaped_characters(self) -> bool:
         """Check if value is a string that contains characters to escape"""
-        return isinstance(self.filter_value, str) and any(
-            c for c in ESCAPE_CHARACTERS if c in self.filter_value
-        )
+        pass
 
     def _split_value_into_parts(self, query_str: str) -> None:
-        parts = query_str.split("__")
-        if parts[-1] in FILTER_OPERATORS:
-            self.operator = parts[-1]
-            self.field_name = parts[-2]
-            self.related_parts = parts[:-2]
-        else:
-            self.operator = "exact"
-            self.field_name = parts[-1]
-            self.related_parts = parts[:-1]
+        pass
 
     def _escape_characters_in_clause(self) -> None:
         """
@@ -87,28 +77,11 @@ class FilterAction(QueryAction):
         :return: escaped value and flag if escaping is needed
         :rtype: tuple[Any, bool]
         """
-        self.has_escaped_character = False
-        if self.operator in [
-            "contains",
-            "icontains",
-            "startswith",
-            "istartswith",
-            "endswith",
-            "iendswith",
-        ]:
-            if isinstance(self.filter_value, ormar.Model):
-                raise QueryDefinitionError(
-                    "You cannot use contains and icontains with instance of the Model"
-                )
-            self.has_escaped_character = self.has_escaped_characters()
-            if self.has_escaped_character:
-                self._escape_chars()
-            self._prefix_suffix_quote()
+        pass
 
     def _escape_chars(self) -> None:
         """Actually replaces chars to escape in value"""
-        for char in ESCAPE_CHARACTERS:
-            self.filter_value = self.filter_value.replace(char, f"\\{char}")
+        pass
 
     def _prefix_suffix_quote(self) -> None:
         """
@@ -120,9 +93,7 @@ class FilterAction(QueryAction):
         :return:
         :rtype:
         """
-        prefix = "%" if "start" not in self.operator else ""
-        sufix = "%" if "end" not in self.operator else ""
-        self.filter_value = f"{prefix}{self.filter_value}{sufix}"
+        pass
 
     def get_text_clause(self) -> TextClause:
         """

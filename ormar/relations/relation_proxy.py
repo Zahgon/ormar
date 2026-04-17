@@ -60,12 +60,7 @@ class RelationProxy(Generic[T], list[T]):
         :return: name of the related field
         :rtype: str
         """
-        if self._related_field_name:
-            return self._related_field_name
-        owner_field = self._owner.ormar_config.model_fields[self.field_name]
-        self._related_field_name = owner_field.get_related_name()
-
-        return self._related_field_name
+        pass
 
     def __getitem__(self, item: Any) -> "T":  # type: ignore
         return super().__getitem__(item)
@@ -201,8 +196,7 @@ class RelationProxy(Generic[T], list[T]):
         """
         Initializes the QuerySetProxy if not yet initialized.
         """
-        if not self._check_if_queryset_is_initialized():
-            self.queryset_proxy.queryset = self._set_queryset()
+        pass
 
     def _check_if_queryset_is_initialized(self) -> bool:
         """
@@ -210,10 +204,7 @@ class RelationProxy(Generic[T], list[T]):
         :return: result of the check
         :rtype: bool
         """
-        return (
-            hasattr(self.queryset_proxy, "queryset")
-            and self.queryset_proxy.queryset is not None
-        )
+        pass
 
     def _check_if_model_saved(self) -> None:
         """
@@ -235,18 +226,7 @@ class RelationProxy(Generic[T], list[T]):
         :return: initialized QuerySet
         :rtype: QuerySet
         """
-        related_field_name = self.related_field_name
-        pkname = self._owner.get_column_alias(self._owner.ormar_config.pkname)
-        self._check_if_model_saved()
-        kwargs = {f"{related_field_name}__{pkname}": self._owner.pk}
-        queryset = (
-            ormar.QuerySet(
-                model_cls=self.relation.to, proxy_source_model=self._owner.__class__
-            )
-            .select_related(related_field_name)
-            .filter(**kwargs)
-        )
-        return queryset
+        pass
 
     async def remove(  # type: ignore
         self, item: "T", keep_reversed: bool = True

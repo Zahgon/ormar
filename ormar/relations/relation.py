@@ -81,9 +81,7 @@ class Relation(Generic[T]):
 
     @property
     def through(self) -> type["Model"]:
-        if not self._through:  # pragma: no cover
-            raise RelationshipInstanceError("Relation does not have through model!")
-        return self._through
+        pass
 
     def _clean_related(self) -> None:
         """

@@ -223,10 +223,7 @@ class SavePrepareMixin(RelationMixin, AliasMixin):
         :return: modified kwargs with serialized JSON fields in nested models
         :rtype: Dict
         """
-        for key, value in kwargs.items():
-            if isinstance(value, ormar.Model) and hasattr(value, "_json_fields"):
-                value.dump_all_json_fields_to_str(value.__dict__)
-        return kwargs
+        pass
 
     @classmethod
     def populate_default_values(cls, new_kwargs: dict) -> dict:
@@ -335,18 +332,7 @@ class SavePrepareMixin(RelationMixin, AliasMixin):
         :return: no of updated models
         :rtype: int
         """
-        if (
-            save_all or not instance.pk or not instance.saved
-        ) and not instance.__pk_only__:
-            await instance.upsert(__force_save__=True)
-            if relation_field and relation_field.is_multi:
-                await instance._upsert_through_model(
-                    instance=instance,
-                    relation_field=relation_field,
-                    previous_model=cast("Model", previous_model),
-                )
-            update_count += 1
-        return update_count
+        pass
 
     @staticmethod
     async def _upsert_through_model(
@@ -362,17 +348,7 @@ class SavePrepareMixin(RelationMixin, AliasMixin):
         :param previous_model: previous model from which method came
         :type previous_model: Model
         """
-        through_name = previous_model.ormar_config.model_fields[
-            relation_field.name
-        ].through.get_name()
-        through = getattr(instance, through_name)
-        if through:
-            through_dict = through.model_dump(exclude=through.extract_related_names())
-        else:
-            through_dict = {}
-        await getattr(
-            previous_model, relation_field.name
-        ).queryset_proxy.upsert_through_instance(instance, **through_dict)
+        pass
 
     async def _update_relation_list(
         self,
@@ -402,29 +378,7 @@ class SavePrepareMixin(RelationMixin, AliasMixin):
         :return: tuple of update count and visited
         :rtype: int
         """
-        for field in fields_list:
-            values = self._get_field_values(name=field.name)
-            for value in values:
-                if follow:
-                    update_count = await value.save_related(
-                        follow=follow,
-                        save_all=save_all,
-                        relation_map=self._skip_ellipsis(  # type: ignore
-                            relation_map, field.name, default_return={}
-                        ),
-                        update_count=update_count,
-                        previous_model=self,
-                        relation_field=field,
-                    )
-                else:
-                    update_count = await value._upsert_model(
-                        instance=value,
-                        save_all=save_all,
-                        previous_model=self,
-                        relation_field=field,
-                        update_count=update_count,
-                    )
-        return update_count
+        pass
 
     def _get_field_values(self, name: str) -> list:
         """
@@ -435,7 +389,4 @@ class SavePrepareMixin(RelationMixin, AliasMixin):
         :return: list of values
         :rtype: list
         """
-        values = getattr(self, name) or []
-        if not isinstance(values, list):
-            values = [values]
-        return values
+        pass

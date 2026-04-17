@@ -170,7 +170,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="in", other=other)
+        pass
 
     def iexact(self, other: Any) -> FilterGroup:
         """
@@ -181,7 +181,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="iexact", other=other)
+        pass
 
     def contains(self, other: Any) -> FilterGroup:
         """
@@ -192,7 +192,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="contains", other=other)
+        pass
 
     def icontains(self, other: Any) -> FilterGroup:
         """
@@ -203,7 +203,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="icontains", other=other)
+        pass
 
     def startswith(self, other: Any) -> FilterGroup:
         """
@@ -225,7 +225,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="istartswith", other=other)
+        pass
 
     def endswith(self, other: Any) -> FilterGroup:
         """
@@ -247,7 +247,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="iendswith", other=other)
+        pass
 
     def isnull(self, other: Any) -> FilterGroup:
         """
@@ -258,7 +258,7 @@ class FieldAccessor:
         :return: FilterGroup for operator
         :rtype: ormar.queryset.clause.FilterGroup
         """
-        return self._select_operator(op="isnull", other=other)
+        pass
 
     def asc(self) -> OrderAction:
         """
@@ -267,7 +267,7 @@ class FieldAccessor:
         :return: OrderGroup for operator
         :rtype: ormar.queryset.actions.OrderGroup
         """
-        return OrderAction(order_str=self._access_chain, model_cls=self._source_model)
+        pass
 
     def desc(self) -> OrderAction:
         """
@@ -276,6 +276,4 @@ class FieldAccessor:
         :return: OrderGroup for operator
         :rtype: ormar.queryset.actions.OrderGroup
         """
-        return OrderAction(
-            order_str="-" + self._access_chain, model_cls=self._source_model
-        )
+        pass

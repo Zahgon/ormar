@@ -63,9 +63,7 @@ class QuerysetProxy(Generic[T]):
         :return: QuerySet
         :rtype: QuerySet
         """
-        if not self._queryset:
-            raise AttributeError
-        return self._queryset
+        pass
 
     @queryset.setter
     def queryset(self, value: "QuerySet") -> None:
@@ -74,7 +72,7 @@ class QuerysetProxy(Generic[T]):
         :param value: QuerySet
         :type value: QuerySet
         """
-        self._queryset = value
+        pass
 
     def _assign_child_to_parent(self, child: Optional["T"]) -> None:
         """
@@ -159,10 +157,7 @@ class QuerysetProxy(Generic[T]):
         :param child: child model instance
         :type child: Model
         """
-        try:
-            await self.update_through_instance(child=child, **kwargs)
-        except NoMatch:
-            await self.create_through_instance(child=child, **kwargs)
+        pass
 
     async def delete_through_instance(self, child: "T") -> None:
         """
@@ -188,7 +183,7 @@ class QuerysetProxy(Generic[T]):
         :return: result of the check
         :rtype: bool
         """
-        return await self.queryset.exists()
+        pass
 
     async def count(self, distinct: bool = True) -> int:
         """
@@ -217,7 +212,7 @@ class QuerysetProxy(Generic[T]):
         :return: max value of column(s)
         :rtype: Any
         """
-        return await self.queryset.max(columns=columns)
+        pass
 
     async def min(self, columns: Union[str, list[str]]) -> Any:  # noqa: A003
         """
@@ -227,7 +222,7 @@ class QuerysetProxy(Generic[T]):
         :return: min value of column(s)
         :rtype: Any
         """
-        return await self.queryset.min(columns=columns)
+        pass
 
     async def sum(self, columns: Union[str, list[str]]) -> Any:  # noqa: A003
         """
@@ -237,7 +232,7 @@ class QuerysetProxy(Generic[T]):
         :return: sum value of columns
         :rtype: int
         """
-        return await self.queryset.sum(columns=columns)
+        pass
 
     async def avg(self, columns: Union[str, list[str]]) -> Any:
         """
@@ -247,7 +242,7 @@ class QuerysetProxy(Generic[T]):
         :return: avg value of columns
         :rtype: Union[int, float, list]
         """
-        return await self.queryset.avg(columns=columns)
+        pass
 
     async def clear(self, keep_reversed: bool = True) -> int:
         """
@@ -328,12 +323,7 @@ class QuerysetProxy(Generic[T]):
         :param flatten: when one field is passed you can flatten the list of tuples
         :type flatten: bool
         """
-        return await self.queryset.values(
-            fields=fields,
-            exclude_through=exclude_through,
-            _as_dict=False,
-            _flatten=flatten,
-        )
+        pass
 
     async def first(self, *args: Any, **kwargs: Any) -> "T":
         """
@@ -372,14 +362,7 @@ class QuerysetProxy(Generic[T]):
         :return: returned model
         :rtype: Model
         """
-        try:
-            get = await self.queryset.get(*args, **kwargs)
-        except ormar.NoMatch:
-            return None
-
-        self._clean_items_on_load()
-        self._register_related(get)
-        return get
+        pass
 
     async def get(self, *args: Any, **kwargs: Any) -> "T":
         """
@@ -424,10 +407,7 @@ class QuerysetProxy(Generic[T]):
         :return: list of returned models
         :rtype: list[Model]
         """
-        all_items = await self.queryset.all(*args, **kwargs)
-        self._clean_items_on_load()
-        self._register_related(all_items)
-        return all_items
+        pass
 
     async def iterate(  # noqa: A003
         self,
@@ -447,9 +427,7 @@ class QuerysetProxy(Generic[T]):
         :return: asynchronous iterable generator of returned models
         :rtype: AsyncGenerator[Model]
         """
-
-        async for item in self.queryset.iterate(*args, **kwargs):
-            yield item
+        pass
 
     async def create(self, **kwargs: Any) -> "T":
         """
@@ -532,11 +510,7 @@ class QuerysetProxy(Generic[T]):
         :return: model instance and a boolean
         :rtype: tuple("T", bool)
         """
-        try:
-            return await self.get(*args, **kwargs), False
-        except NoMatch:
-            _defaults = _defaults or {}
-            return await self.create(**{**kwargs, **_defaults}), True
+        pass
 
     async def update_or_create(self, **kwargs: Any) -> "T":
         """
@@ -589,10 +563,7 @@ class QuerysetProxy(Generic[T]):
         :return: filtered QuerysetProxy
         :rtype: QuerysetProxy
         """
-        queryset = self.queryset.filter(*args, **kwargs)
-        return self.__class__(
-            relation=self.relation, type_=self.type_, to=self.to, qryset=queryset
-        )
+        pass
 
     def exclude(self, *args: Any, **kwargs: Any) -> "QuerysetProxy[T]":  # noqa: A003, A001
         """
@@ -615,10 +586,7 @@ class QuerysetProxy(Generic[T]):
         :return: filtered QuerysetProxy
         :rtype: QuerysetProxy
         """
-        queryset = self.queryset.exclude(*args, **kwargs)
-        return self.__class__(
-            relation=self.relation, type_=self.type_, to=self.to, qryset=queryset
-        )
+        pass
 
     def select_all(self, follow: bool = False) -> "QuerysetProxy[T]":
         """
@@ -641,10 +609,7 @@ class QuerysetProxy(Generic[T]):
         :return: reloaded Model
         :rtype: Model
         """
-        queryset = self.queryset.select_all(follow=follow)
-        return self.__class__(
-            relation=self.relation, type_=self.type_, to=self.to, qryset=queryset
-        )
+        pass
 
     def select_related(self, related: Union[list, str]) -> "QuerysetProxy[T]":
         """
@@ -709,10 +674,7 @@ class QuerysetProxy(Generic[T]):
         :return: QuerySet
         :rtype: QuerySet
         """
-        queryset = self.queryset.paginate(page=page, page_size=page_size)
-        return self.__class__(
-            relation=self.relation, type_=self.type_, to=self.to, qryset=queryset
-        )
+        pass
 
     def limit(self, limit_count: int) -> "QuerysetProxy[T]":
         """

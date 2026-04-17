@@ -54,13 +54,7 @@ class Node(abc.ABC):
         :return: name of the relation
         :rtype: str
         """
-        if (
-            self.relation_field.self_reference
-            and self.relation_field.self_reference_primary == self.relation_field.name
-        ):
-            return self.relation_field.default_source_field_name()
-        else:
-            return self.relation_field.default_target_field_name()
+        pass
 
     @abstractmethod
     def extract_related_ids(self, column_name: str) -> list:  # pragma: no cover
@@ -129,12 +123,7 @@ class AlreadyLoadedNode(Node):
         """
         Extract own models that were already fetched and attached to root node
         """
-        for model in self.parent.models:
-            child_models = getattr(model, self.relation_field.name)
-            if isinstance(child_models, list):
-                self.models.extend(child_models)
-            elif child_models:
-                self.models.append(child_models)
+        pass
 
     async def load_data(self) -> None:
         """

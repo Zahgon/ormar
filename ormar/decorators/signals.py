@@ -29,14 +29,7 @@ def receiver(
         :return: untouched function already registered for given signal
         :rtype: Callable
         """
-        if not isinstance(senders, list):
-            _senders = [senders]
-        else:
-            _senders = senders
-        for sender in _senders:
-            signals = getattr(sender.ormar_config.signals, signal)
-            signals.connect(func)
-        return func
+        pass
 
     return _decorator
 

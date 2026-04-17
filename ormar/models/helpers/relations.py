@@ -189,21 +189,7 @@ def add_field_serializer_for_reverse_relations(
         Serialize a list of nodes, handling circular references
         by excluding the children.
         """
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore", message="Pydantic serializer warnings"
-                )
-                return handler(children)
-        except ValueError as exc:  # pragma: no cover
-            if not str(exc).startswith("Circular reference"):
-                raise exc
-
-            result = []
-            for child in children:
-                # If there is one circular ref dump all children as pk only
-                result.append({child.ormar_config.pkname: child.pk})
-            return result
+        pass
 
     decorator = field_serializer(related_name, mode="wrap", check_fields=False)(
         serialize
